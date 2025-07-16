@@ -1,17 +1,20 @@
 <template>
   <div class="main-container">
     <CommonHeader></CommonHeader>
+    <MainPageContent></MainPageContent>
   </div>
 </template>
 
 <script>
 
 import CommonHeader from '@/components/CommonHeader';
+import MainPageContent from '@/components/MainPageContent';
 
 export default {
   name: 'MainPage',
   components: {
-    CommonHeader
+    CommonHeader,
+    MainPageContent,
   },
   props: {
    
@@ -25,12 +28,8 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
+  box-sizing: border-box;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  .hellow-text {
-    color: red;
-  }
+  
 }
 </style>

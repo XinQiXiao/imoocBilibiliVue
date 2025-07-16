@@ -1,6 +1,7 @@
 <template>
   <div class="bili-header">
     <div class="header-nav-container">
+
       <div class="right-entry">
 
         <div v-if="isUserLoggedIn" class="user-center">
@@ -29,11 +30,7 @@
 
         <div class="right-entry-moments">
 
-          <el-popover 
-            placement="top-start" 
-            width="200" 
-            trigger="hover"
-          >
+          <el-popover placement="top-start" width="200" trigger="hover">
             <div v-if="isUserLoggedIn">
               <div>
                 这是动态内容
@@ -55,12 +52,29 @@
 
         </div>
 
+        <div class="right-entry-content">
+          <el-button 
+            type="warning" icon="el-icon-upload2" circle
+            
+          ></el-button>
+          <span>历史</span>
+        </div>
+        <div class="right-entry-content">
+          <el-button 
+            type="warning" icon="el-icon-upload2" circle
+            @click="jumpWithLoginUser('/userLogin')"
+          ></el-button>
+          <span>投稿</span>
+        </div>
+
       </div>
 
-      <div class="header-banner-container">
-
-      </div>
     </div>
+
+    <div class="header-banner-container">
+      <img class="banner" :src="require('@/assets/header/header-banner.png')" alt="">
+    </div>
+
   </div>
 </template>
 
@@ -80,10 +94,41 @@
         return localStorage.getItem('token');
       }
     },
+    mounted(){
+      localStorage.setItem('token', '123')
+    },
+    methods: {
+      jumpWithLoginUser(path) {
+        //先判断用户是否登录，如果没有登录，弹出用户登录对话框
+        if (!this.isUserLoggedIn) {
+          this.dialogVisible = true;
+        } else {
+          //打开一个新的页面地址
+          //如果当前页面的路径等于我们要跳转的路径，则只需要刷新页面
+          if (this.$route.path !== path) {
+            this.$router.push(path);
+          } else {
+            location.reload();
+          }
+        }
+      }
+    },
   }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
+.bili-header {
 
+  .header-nav-container {
+    position: absolute;
+    width: 100%;
+  }
+
+  .header-banner-container {
+    .banner {
+      width: 100%;
+    }
+  }
+}
 </style>
