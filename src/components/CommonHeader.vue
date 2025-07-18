@@ -47,7 +47,7 @@
                 立即登录
               </el-button>
             </div>
-            <el-button slot="reference">hover 激活</el-button>
+            <el-button slot="reference" class="el-btn-moments">hover 激活</el-button>
           </el-popover>
 
         </div>
@@ -95,7 +95,7 @@
       }
     },
     mounted(){
-      localStorage.setItem('token', '123')
+      // localStorage.setItem('token', '123')
     },
     methods: {
       jumpWithLoginUser(path) {
@@ -123,6 +123,46 @@
   .header-nav-container {
     position: absolute;
     width: 100%;
+
+    .right-entry {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 10px;
+
+      .user-center {
+        margin-right: 10px;
+
+        .login-button {
+          color: #00a1d6;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          font-weight: bold;
+          background-color: #fff;
+        }
+      }
+
+      .right-entry-moments {
+        margin-right: 10px;
+
+        .el-btn-moments {
+          height: 100%;
+        }
+      }
+
+      .right-entry-content {
+        margin-right: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        span {
+          margin-top: 5px;
+          color: #fff;
+        }
+      }
+    }
   }
 
   .header-banner-container {
