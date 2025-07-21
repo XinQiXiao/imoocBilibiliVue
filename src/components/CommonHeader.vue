@@ -2,6 +2,30 @@
   <div class="bili-header">
     <div class="header-nav-container">
 
+      <div class="left-entry">
+        <div v-for="entry in entries" :key="entry.id">
+          <span @click="jumpToPath(entry.path)">{{entry.name}}</span>
+        </div>
+      </div>
+
+      <div class="center-search-bar">
+        <form class="nav-search-form">
+          <div class="nav-search-content">
+            <input class="nav-search-input"
+              type="text" autocomplete="off"
+              maxlength="100" placeholder="请输入要搜索的内容"
+              v-model="searchTxt"
+            >
+          </div>
+          <div class="nav-search-btn">
+            <el-button icon="el-icon-search"
+              circle size="mini" @click="searchContents"
+            ></el-button>
+          </div>
+        </form>
+
+      </div>
+
       <div class="right-entry">
 
         <div v-if="isUserLoggedIn" class="user-center">
@@ -87,6 +111,29 @@
     data() {
       return {
         dialogVisible: false,
+        entries: [
+          {
+            id: 1,
+            name: '首页',
+            path: '/'
+          },
+          {
+            id: 2,
+            name: '番剧',
+            path: '/'
+          },
+          {
+            id: 3,
+            name: '直播',
+            path: '/'
+          },
+          {
+            id: 4,
+            name: '游戏中心',
+            path: '/'
+          }
+        ],
+        searchTxt: '',
       }
     },
     computed: {
@@ -111,7 +158,15 @@
             location.reload();
           }
         }
-      }
+      },
+      jumpToPath(path){
+        if(this.$route.path !== path){
+          this.$router.push(path);
+        }else{
+          location.reload();
+        }
+      },
+      searchContents(){},
     },
   }
 </script>
