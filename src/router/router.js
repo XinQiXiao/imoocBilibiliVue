@@ -7,7 +7,20 @@ const routes = [
   {
     path: '/',
     component: () => import('@/components/MainPage'),
-    redirect: 'home',
+  },
+  {
+    path: '/userLogin',
+    component: () => import('@/components/UserLogin'),
+  },
+  {
+    path: '/demo',
+    component: () => import('@/components/DemoComponent'),
+  },
+  {
+    // 个人中心
+    path: '/myspace',
+    component: () => import('@/components/MainPage'),
+    redirect: '/myspace/home',
     children: [
       {
         path: '/home',
@@ -18,14 +31,6 @@ const routes = [
         component: () => import('@/components/MySpacePost'),
       },
     ],
-  },
-  {
-    path: '/userLogin',
-    component: () => import('@/components/UserLogin'),
-  },
-  {
-    path: '/demo',
-    component: () => import('@/components/DemoComponent'),
   },
 ]
 

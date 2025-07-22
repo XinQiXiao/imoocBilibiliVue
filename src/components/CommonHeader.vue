@@ -115,22 +115,22 @@
           {
             id: 1,
             name: '首页',
-            path: '/'
+            path: '/home'
           },
           {
             id: 2,
             name: '番剧',
-            path: '/'
+            path: '/home'
           },
           {
             id: 3,
             name: '直播',
-            path: '/'
+            path: '/home'
           },
           {
             id: 4,
             name: '游戏中心',
-            path: '/'
+            path: '/home'
           }
         ],
         searchTxt: '',
@@ -178,6 +178,72 @@
   .header-nav-container {
     position: absolute;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .left-entry{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-left: 40px;
+
+      span{
+        margin-right: 20px;
+        color: white;
+        font-weight: bolder;
+        cursor: pointer;
+      }
+    }
+
+    .center-search-bar{
+      flex: 1 auto;
+      min-width: 181px;
+      max-width: 500px;
+
+      .nav-search-form{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 4px 0 4px;
+        height: 40px;
+        background-color: white;
+        border-radius: 8px;
+        opacity: 0.8;
+
+        .nav-search-content{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          height: 36px;
+          border: 2px solid transparent;
+          border-radius: 6px;
+
+          .nav-search-input{
+            width: 100%;
+            font-size: 14px;
+            padding-right: 8px;
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            outline: none;
+          }
+        }
+
+        .nav-search-btn{
+          margin: 0;
+          padding: 0;
+          width: 32px;
+          height: 32px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+      }
+
+    }
 
     .right-entry {
       display: flex;
