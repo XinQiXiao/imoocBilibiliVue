@@ -33,23 +33,51 @@
     </div>
 
 
-    <el-carousel :interval="3000" arrow="always">
-      <el-carousel-item v-for="(carouselItem, carIndex) in items" :key="carIndex">
-        <img :src="carouselItem.imgUrl" alt="">
-      </el-carousel-item>
-    </el-carousel>
+    <div class="main-page-video-container">
 
-    <!-- <el-menu :default-active="'1'" class="el-menu-demo" mode="horizontal" >
-      <el-menu-item 
-        v-for="(menuItem, menIndex) in menus" :key="menIndex" :index="menuItem.index"
-        @click="menuItemClick(menuItem)"
-      >{{menuItem.name}}</el-menu-item>
-    </el-menu>
-    <router-view></router-view> -->
+      <div class="carousel-container">
+        <el-carousel :interval="5000" arrow="always" class="carousel">
+          <el-carousel-item v-for="(video, index) in recommendedVideos" :key="index">
+            <img :src="video.thumbnail"
+                 :alt="video.id" style="width: 100%; height: 100%; border-radius: 5px"
+                  @click="jumpToVideoDetail(video)">
+          </el-carousel-item>
+        </el-carousel>
+      </div>
+
+      <div class="video-container" v-for="video in videos" :key="video.id"
+          @click="jumpToVideoDetail(video)">
+        <img :src="video.thumbnail" class="thumbnail" alt="">
+        <span>{{video.title}}</span>
+        <div class="videos-details">
+          <div class="video-count-item">
+            <img :src="require('@/assets/icon/viewCount.png')" alt="">
+            {{video.viewCount ? video.viewCount : '-'}}
+          </div>
+          <div class="danmu-count-item">
+            <img :src="require('@/assets/icon/danmuCount.png')" alt="">
+            {{video.danmuCount ? video.danmuCount : '-'}}
+          </div>
+          <div class="videos-time">
+            {{video.createTime}}
+          </div>
+        </div>
+
+      </div>
+      <infinite-loading 
+        :infinite-id="infiniteId"
+        @infinite="pageListVideos">
+      </infinite-loading>
+
+    </div>
+
   </div>
 </template>
 
 <script>
+  import videoApi from "@/api/videoApi";
+
+
   export default {
     name: 'MainPageContent',
     props: {
@@ -200,13 +228,152 @@
             href: 'https://www.bilibili.com/anime/'
           }
         ],
-      
+        recommendedVideos: [
+          {
+            id:1,
+            thumbnail:require('@/assets/banner/1.jpg')
+          },
+          {
+            id:2,
+            thumbnail:require('@/assets/banner/2.jpg')
+          },
+          {
+            id:3,
+            thumbnail:require('@/assets/banner/3.jpg')
+          }
+        ],
+        videos: [
+          {
+            id:1,
+            title:'title1',
+            thumbnail:require('@/assets/banner/1.jpg'),
+            createTime: '2023-12-16 10:30:42',
+            danmuCount:20,
+            viewCount:10
+          },
+          {
+            id:2,
+            title:'title2',
+            thumbnail:require('@/assets/banner/2.jpg'),
+            createTime: '2023-12-17 10:30:42',
+            danmuCount:30,
+            viewCount:20
+          },
+          {
+            id:3,
+            title:'title3',
+            thumbnail:require('@/assets/banner/3.jpg'),
+            createTime: '2023-12-18 10:30:42',
+            danmuCount:10,
+            viewCount:40
+          },
+          {
+            id:4,
+            title:'title4',
+            thumbnail:require('@/assets/banner/1.jpg'),
+            createTime: '2023-12-16 10:30:42',
+            danmuCount:20,
+            viewCount:10
+          },
+          {
+            id:5,
+            title:'title5',
+            thumbnail:require('@/assets/banner/2.jpg'),
+            createTime: '2023-12-17 10:30:42',
+            danmuCount:30,
+            viewCount:20
+          },
+          {
+            id:6,
+            title:'title6',
+            thumbnail:require('@/assets/banner/3.jpg'),
+            createTime: '2023-12-18 10:30:42',
+            danmuCount:10,
+            viewCount:40
+          },
+           {
+            id:7,
+            title:'title7',
+            thumbnail:require('@/assets/banner/1.jpg'),
+            createTime: '2023-12-16 10:30:42',
+            danmuCount:20,
+            viewCount:10
+          },
+          {
+            id:8,
+            title:'title8',
+            thumbnail:require('@/assets/banner/2.jpg'),
+            createTime: '2023-12-17 10:30:42',
+            danmuCount:30,
+            viewCount:20
+          },
+          {
+            id:9,
+            title:'title9',
+            thumbnail:require('@/assets/banner/3.jpg'),
+            createTime: '2023-12-18 10:30:42',
+            danmuCount:10,
+            viewCount:40
+          },
+          {
+            id:10,
+            title:'title10',
+            thumbnail:require('@/assets/banner/1.jpg'),
+            createTime: '2023-12-16 10:30:42',
+            danmuCount:20,
+            viewCount:10
+          },
+          {
+            id:11,
+            title:'title11',
+            thumbnail:require('@/assets/banner/2.jpg'),
+            createTime: '2023-12-17 10:30:42',
+            danmuCount:30,
+            viewCount:20
+          },
+          {
+            id:12,
+            title:'title12',
+            thumbnail:require('@/assets/banner/3.jpg'),
+            createTime: '2023-12-18 10:30:42',
+            danmuCount:10,
+            viewCount:40
+          }
+        ],
+        infiniteId: 1,
+        currentPage: 1
       }
     },
     methods: {
       menuItemClick(itemInfo){
         this.$router.push(itemInfo.path);
-      }
+      },
+      jumpToVideoDetail(video) {
+        
+      },
+
+      pageListVideos($state) {
+        let params = {
+          size: 10,
+          no: this.currentPage
+        }
+        videoApi.pageListVideos({ params }).then(response => {
+          const { list: videos, total: total } = response.data;
+          if (videos.length === 0) {
+            // 已加载所有数据，不再触发加载
+            $state.complete();
+            return;
+          }
+          this.videos = this.videos.concat(videos);
+          this.total = total;
+          this.currentPage++; // 递增当前页码
+          $state.loaded(); // 标记加载完成
+        }).catch(error => {
+          // 捕获异常
+          console.error('请求出错:', error);
+          $state.complete();
+        });
+      },
     },
   }
 </script>
@@ -284,6 +451,94 @@
 
     }
 
+  }
+
+  .main-page-video-container{
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: repeat(5, 1fr);
+    height: 100%;
+    flex-shrink: 0;
+    margin-right: 5%;
+    margin-left: 5%;
+    margin-top: 40px;
+
+    .carousel-container{
+      grid-column: 1/3;
+      grid-row: 1/3;
+      cursor: pointer;
+
+      .carousel{
+        height: 100%;
+        max-height: 480px;
+
+        ::v-deep .el-carousel__container{
+          height: 100%;
+          min-height: 400px;
+        }
+      }
+
+    }
+
+    .video-container{
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+      height: 100%;
+      cursor: pointer;
+      justify-content: space-between;
+
+      .thumbnail{
+        width: 100%;
+        max-width: 320px;
+        height: 180px;
+        border-radius: 5px;
+      }
+
+      .videos-details{
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+
+        .video-count-item{
+          display: flex;
+          align-items: center;
+          margin-right: 10px;
+
+          img{
+            max-height: 26px;
+            max-width: 26px;
+            margin-right: 5px;
+          }
+        }
+
+        .danmu-count-item{
+          display: flex;
+          align-items: center;
+          margin-right: 10px;
+
+          img{
+            max-height: 26px;
+            max-width: 26px;
+            margin-right: 5px;
+          }
+        }
+        .videos-time{
+          color: gray;
+          font-size: 16px;
+        }
+      }
+    }
+
+    @media (max-width: 1680px){
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 768px){
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 }
 </style>
