@@ -18,9 +18,9 @@ const routes = [
   },
   {
     // 个人中心
-    path: '/myspace',
+    path: '/mySpace',
     component: () => import('@/components/MainPage'),
-    redirect: '/myspace/home',
+    redirect: '/mySpace/home',
     children: [
       {
         path: '/home',

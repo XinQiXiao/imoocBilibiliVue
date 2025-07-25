@@ -31,11 +31,22 @@
         <div v-if="isUserLoggedIn" class="user-center">
           <el-dropdown>
             <span class="el-dropdown-link">
-              <img :src="require('@/assets/bilibiliavatar.png')" alt="">
+              <img 
+                style="height: 50px; width: 50px; border-radius: 50%"
+                :src="require('@/assets/bilibiliavatar.png')" alt=""
+              >
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>个人中心</el-dropdown-item>
-              <el-dropdown-item>退出登录</el-dropdown-item>
+              <el-dropdown-item>
+                <el-button type="text" style="color: black" @click="jumpToPath('/mySpace')">
+                  个人中心
+                </el-button>
+              </el-dropdown-item>
+              <el-dropdown-item style="color: black">
+                <el-button type="text" style="color: black" @click="logout">
+                  退出登录
+                </el-button>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -43,12 +54,8 @@
           <el-button class="login-button" type="text" @click="dialogVisible=true">
             登录
           </el-button>
-          <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-            <span>这是一段信息</span>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-            </span>
+          <el-dialog title="密码登录" :visible.sync="dialogVisible" width="30%">
+            <LoginDialog></LoginDialog>
           </el-dialog>
         </div>
 
@@ -103,11 +110,15 @@
 </template>
 
 <script>
+  import userUtils from "@/utils/userUtils";
+  import LoginDialog from "@/components/LoginDialog.vue";
+
   export default {
     name: 'CommonHeader',
     props: {
 
     },
+    components: { LoginDialog, },
     data() {
       return {
         dialogVisible: false,
@@ -136,13 +147,10 @@
         searchTxt: '',
       }
     },
+    mixins: [userUtils,],
     computed: {
-      isUserLoggedIn() {
-        return localStorage.getItem('token');
-      }
     },
     mounted(){
-      // localStorage.setItem('token', '123')
     },
     methods: {
       jumpWithLoginUser(path) {
