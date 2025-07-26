@@ -33,7 +33,7 @@
             <span class="el-dropdown-link">
               <img 
                 style="height: 50px; width: 50px; border-radius: 50%"
-                :src="require('@/assets/bilibiliavatar.png')" alt=""
+                :src="avatar" alt=""
               >
             </span>
             <el-dropdown-menu slot="dropdown">
@@ -93,7 +93,7 @@
         <div class="right-entry-content">
           <el-button 
             type="warning" icon="el-icon-upload2" circle
-            @click="jumpWithLoginUser('/userLogin')"
+            @click="jumpWithLoginUser('/postContent')"
           ></el-button>
           <span>投稿</span>
         </div>
@@ -149,8 +149,34 @@
     },
     mixins: [userUtils,],
     computed: {
+      avatar() {
+        const userInfo = this.$store.state.userInfo;
+        if (userInfo && userInfo.avatar && userInfo.avatar !== '') {
+          return userInfo.avatar;
+        } else {
+          return require('@/assets/bilibiliavatar.png');
+        }
+      }
     },
-    mounted(){
+    async mounted(){
+      if (this.isUserLoggedIn) {
+        this.$store.state.userInfo = await this.getUserBasicInfo();
+
+        // let params = {
+        //   size: 5,
+        //   no: 1
+        // }
+        // //查询动态
+        // let response = await userMomentApi.pageListMoments(params);
+        // if (response.data) {
+        //   this.moments = response.data.list;
+        // }
+        // //查询历史
+        // let response1 = await userHistoryApi.pagListUserVideoHistory(params);
+        // if (response1.data) {
+        //   this.histories = response1.data.list;
+        // }
+      }
     },
     methods: {
       jumpWithLoginUser(path) {

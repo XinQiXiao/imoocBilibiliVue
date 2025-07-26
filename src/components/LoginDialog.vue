@@ -6,7 +6,7 @@
     mixins: [userUtils],
     data() {
       return {
-        account: '',
+        account: '15312340002',
         password: ''
       }
     },

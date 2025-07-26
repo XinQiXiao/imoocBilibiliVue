@@ -17,6 +17,11 @@ const routes = [
     component: () => import('@/components/DemoComponent'),
   },
   {
+    // 视频投稿
+    path:'/postContent',
+    component: () => import('@/components/PostContent'),
+  },
+  {
     // 个人中心
     path: '/mySpace',
     component: () => import('@/components/MainPage'),
