@@ -349,7 +349,16 @@
         this.$router.push(itemInfo.path);
       },
       jumpToVideoDetail(video) {
-        
+        if(video){
+          this.$router.push({
+            path:'videoDetail',
+            query:{
+              videoId:video.id
+            }
+          });
+        }else{
+          this.$router.push('/videoDetail');
+        }
       },
 
       pageListVideos($state) {

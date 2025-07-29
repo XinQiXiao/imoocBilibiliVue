@@ -22,6 +22,11 @@ const routes = [
     component: () => import('@/components/PostContent'),
   },
   {
+    // 视频详情
+    path:'/videoDetail',
+    component: () => import('@/components/VideoDetail'),
+  },
+  {
     // 个人中心
     path: '/mySpace',
     component: () => import('@/components/MainPage'),
