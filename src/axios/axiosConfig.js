@@ -14,6 +14,7 @@ httpRequest.interceptors.request.use(function(config){
 });
 
 httpRequest.interceptors.response.use(function(response){
+  console.log('axiosConfig response.interceptors response=>', response)
   const data = response.data;
   console.log('axiosConfig response.interceptors data=>', data)
   if(data){

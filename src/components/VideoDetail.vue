@@ -94,14 +94,21 @@
     },
     methods: {
       async getVideoDetail() {
-        const videoId = this.$route.query.videoId;
-        if (videoId) {
-          const response = await videoApi.getVideoDetail(videoId);
-          this.videoDetail = response.data.video;
-          this.videoUpInfo = response.data.userInfo;
-          await this.initPlayer();
-          
+        try {
+          const videoId = this.$route.query.videoId;
+          if (videoId) {
+            // 文件服务器 失败 视频id 先写死
+            const response = await videoApi.getVideoDetail(10);
+            console.log('getVideoDetail response=>', response);
+            this.videoDetail = response.data.video;
+            this.videoUpInfo = response.data.userInfo;
+            await this.initPlayer();
+            
+          }
+        } catch(error){
+          console.log('getVideoDetail error=>', error);
         }
+        
         
       },
 
