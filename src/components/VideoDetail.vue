@@ -33,6 +33,45 @@
         <!--播放器页面站位DOM-->
         <div id="bili-player"></div>
 
+        <div class="danmu-bar">
+          <!--          数据统计-->
+          <div class="danmu-bar-video-info">
+            {{onWatching}}人正在看，已装填{{danmuCount}}条弹幕
+          </div>
+          <!--          弹幕操作-->
+          <div class="danmu-bar-operation">
+            <div class="danmu-bar-sender">
+              <input class="danmu-bar-sender-input" v-model="danmuText" placeholder="发个友善的内容见证当下" autocomplete="off"
+                @keyup.enter="sendDanmu">
+              <el-button type="primary" @click="sendDanmu">发送</el-button>
+            </div>
+          </div>
+        
+        </div>
+
+        <!--          点赞、投币、收藏-->
+        <div class="video-tools-bar">
+          <div class="video-tools-bar-left">
+            <!--              点赞-->
+            <div class="like-coin-collect">
+              <img :src="likeIcon" @click="addOrDeleteVideoLike" alt="">
+              <div>{{likeCount}}</div>
+            </div>
+            <!--              投币-->
+            <div class="like-coin-collect">
+              <img :src="coinIcon" @click="addVideoCoins" alt="">
+              <div>{{coinCount}}</div>
+            </div>
+            <!--              收藏-->
+            <div class="like-coin-collect">
+              <img :src="collectIcon" @click="addOrDeleteVideoCollection" alt="">
+              <div>{{collectCount}}</div>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
       <div class="right-container">
@@ -89,6 +128,22 @@
         danmus: []
       }
     },
+    computed: {
+      likeIcon() {
+        return this.liked ?
+          require('@/assets/icon/dianzan2.png') : require('@/assets/icon/dianzan1.png');
+      },
+
+      coinIcon() {
+        return this.hasCoin ?
+          require('@/assets/icon/toubi2.png') : require('@/assets/icon/toubi1.png');
+      },
+
+      collectIcon() {
+        return this.collected ?
+          require('@/assets/icon/shoucang2.png') : require('@/assets/icon/shoucang1.png');
+      }
+    },
     mounted(){
       this.getVideoDetail();
     },
@@ -134,6 +189,71 @@
           this.viewCount++;
         })
       },
+
+      sendDanmu(){
+        if(!this.isUserLoggedIn){
+          this.showLoginDialog = true;
+          return;
+        }
+        if(this.danmuText){
+          const danmuText = this.danmuText;
+          const danmuTime = Math.floor(this.player.currentTime * 1000);
+          let danmuMessage = {
+            start:danmuTime,
+            txt:danmuText,
+            duration:this.defaultDanmuConfig.duration,
+            style:this.defaultDanmuConfig.style,
+          }
+          //发送弹幕到后端进行保存
+          let params = {};
+          params.content = danmuMessage;
+          params.videoId = this.$route.query.videoId;
+          params.danmuTime = danmuTime;
+          this.ws.send(JSON.stringify(params));
+          //在前端播放器发送弹幕
+          this.danmuText = '';
+          danmuMessage.id = 1;
+          this.player.danmu.sendComment(danmuMessage);
+        }
+      },
+
+      async addOrDeleteVideoLike(){
+        if(this.liked){
+          await videoApi.deleteVideoLike(this.$route.query.videoId);
+          this.likeCount--;
+        }else{
+          await videoApi.addVideoLike(this.$route.query.videoId);
+          this.likeCount++;
+        }
+        this.liked = !this.liked;
+      },
+
+      async addVideoCoins(){
+        let params = {
+          videoId:this.$route.query.videoId,
+          amount:1
+        }
+        await videoApi.addVideoCoins(params);
+        this.coinCount++;
+        this.hasCoin = true;
+      },
+
+      async addOrDeleteVideoCollection(){
+        if(this.collected){
+          await videoApi.deleteVideoCollection(this.$route.query.videoId);
+          this.collectCount--;
+        }else{
+          let params = {
+            videoId:this.$route.query.videoId,
+            // groupId是系统预设的某一个收藏分组的id，这个id可以固定，也可以通过后端接口获取
+            groupId:16
+          };
+          await videoApi.addVideoCollection(params);
+          this.collectCount++;
+        }
+        this.collected = !this.collected;
+      },
+
 
     },
   }
