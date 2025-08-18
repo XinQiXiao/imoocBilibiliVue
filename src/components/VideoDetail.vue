@@ -158,7 +158,14 @@
             this.videoDetail = response.data.video;
             this.videoUpInfo = response.data.userInfo;
             await this.initPlayer();
-            
+            //获取视频的点赞数量
+            await this.getVideoLikes();
+            //获取视频的投币数量
+            await this.getVideoCoins();
+            //获取视频的收藏数量
+            await this.getVideoCollections();
+            //获取视频的播放量
+            // await this.getVideoViewCounts();
           }
         } catch(error){
           console.log('getVideoDetail error=>', error);
@@ -228,6 +235,12 @@
         this.liked = !this.liked;
       },
 
+      async getVideoLikes(){
+        let response = await videoApi.getVideoLikes(this.$route.query.videoId);
+        this.likeCount = response.data.count !== null ? response.data.count:this.likeCount;
+        this.liked = response.data.like;
+      },
+
       async addVideoCoins(){
         let params = {
           videoId:this.$route.query.videoId,
@@ -236,6 +249,12 @@
         await videoApi.addVideoCoins(params);
         this.coinCount++;
         this.hasCoin = true;
+      },
+
+      async getVideoCoins(){
+        let response = await videoApi.getVideoCoins(this.$route.query.videoId);
+        this.coinCount = response.data.count !== null ? response.data.count:this.coinCount;
+        this.hasCoin = response.data.hasCoin;
       },
 
       async addOrDeleteVideoCollection(){
@@ -254,6 +273,16 @@
         this.collected = !this.collected;
       },
 
+      async getVideoCollections(){
+        let response = await videoApi.getVideoCollections(this.$route.query.videoId);
+        this.collectCount = response.data.count !== null ? response.data.count:this.collectCount;
+        this.collected = response.data.collected;
+      },
+      
+      async getVideoViewCounts(){
+        let response = await videoApi.getVideoViewCounts(this.$route.query.videoId);
+        this.viewCount = response.data !== null ? response.data : this.viewCount;
+      },
 
     },
   }

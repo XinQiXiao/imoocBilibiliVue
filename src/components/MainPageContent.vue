@@ -353,7 +353,7 @@
           this.$router.push({
             path:'videoDetail',
             query:{
-              videoId:video.id
+              videoId:'10'
             }
           });
         }else{

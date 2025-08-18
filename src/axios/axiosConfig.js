@@ -14,9 +14,9 @@ httpRequest.interceptors.request.use(function(config){
 });
 
 httpRequest.interceptors.response.use(function(response){
-  console.log('axiosConfig response.interceptors response=>', response)
+  // console.log('axiosConfig response.interceptors response=>', response)
   const data = response.data;
-  console.log('axiosConfig response.interceptors data=>', data)
+  // console.log('axiosConfig response.interceptors data=>', data)
   if(data){
     if(data.code === '500'){
       throw new Error(data.msg);
