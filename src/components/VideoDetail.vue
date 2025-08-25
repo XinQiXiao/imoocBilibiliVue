@@ -72,6 +72,23 @@
 
         </div>
 
+        <!--        视频描述和视频标签-->
+        <div class="left-container-under-player">
+        <!--          视频描述-->
+          <div class="video-detail-description">
+            {{videoDetail.description}}
+          </div>
+          <!--          视频标签-->
+          <div class="video-detail-tags">
+            <el-tag type="info" style="margin-right: 20px; font-size: 16px" v-for="tag in videoDetail.videoTagList"
+              :key="tag.tagId">
+              {{tag.tagName}}
+            </el-tag>
+          </div>
+        </div>
+
+        <VideoComment v-if="this.$store.state.showVideoCommentComponent" />
+
       </div>
 
       <div class="right-container">
@@ -84,6 +101,7 @@
 
 <script>
   import CommonHeader from "@/components/CommonHeader.vue";
+  import VideoComment from "@/components/VideoComment.vue";
   import videoApi from "@/api/videoApi";
   import Player, {Danmu} from 'xgplayer';
   import 'xgplayer/dist/index.min.css';
@@ -93,7 +111,7 @@
 
   export default {
     name: "VideoDetail4",
-    components: {CommonHeader},
+    components: {CommonHeader, VideoComment},
     mixins:[userUtils],
     data(){
       return {
