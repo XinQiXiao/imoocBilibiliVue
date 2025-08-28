@@ -1,5 +1,6 @@
 import userApi from "@/api/userApi";
 import JSEncrypt from 'jsencrypt';
+import { Message } from 'element-ui';
 
 //判断是否使用刷新令牌
 export const usingRefreshToken = false;
@@ -58,7 +59,8 @@ export default {
           localStorage.setItem('token', token);
         }
       } catch (error) {
-        window.alert('登录失败')
+        Message.error(error.message);
+        throw error;
       }
     },
 

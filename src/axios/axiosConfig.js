@@ -6,6 +6,7 @@ const httpRequest = axios.create({
 });
 
 httpRequest.interceptors.request.use(function(config){
+  //  console.log('axiosConfig response.request config=>', config)
   const token = localStorage.getItem('token');
   if(token && token !== ''){
     config.headers['token'] = token;
