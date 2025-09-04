@@ -92,6 +92,59 @@
       </div>
 
       <div class="right-container">
+        <!--        视频投稿的up主信息-->
+        <div class="up-info-container">
+          <div class="up-avatar">
+            <img :src="videoUpInfo.avatar" alt="">
+          </div>
+          <div class="up-info-right">
+            <div class="up-info-detail">
+              {{videoUpInfo.nick}}
+            </div>
+          </div>
+          <div class="up-operation">
+            <el-button type="primary"
+                       v-if="!followed"
+                       @click="addUserFollowings(videoUpInfo.userId)">
+              关注
+            </el-button>
+            <el-button type="primary" v-else disabled>
+              已关注
+            </el-button>
+            <el-dialog title="密码登录"
+                       :visible.sync="showLoginDialog"
+                       width="30%">
+              <LoginDialog/>
+            </el-dialog>
+          </div>
+        </div>
+
+        <div class="danmu-box">
+          <el-collapse v-model="activeNames">
+            <el-collapse-item title="弹幕列表" name="1">
+              <el-table
+                  :data="tableData"
+                  style="width: 100%"
+                  height="500px">
+                <el-table-column
+                    label="时间"
+                    prop="danmuTime"
+                    width="60">
+                </el-table-column>
+                <el-table-column
+                    label="弹幕内容"
+                    prop="txt"
+                    width="260">
+                </el-table-column>
+                <el-table-column
+                    label="发送时间"
+                    prop="createTime"
+                    width="180">
+                </el-table-column>
+              </el-table>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
 
       </div>
 
@@ -102,7 +155,10 @@
 <script>
   import CommonHeader from "@/components/CommonHeader.vue";
   import VideoComment from "@/components/VideoComment.vue";
+  import LoginDialog from "@/components/LoginDialog.vue";
   import videoApi from "@/api/videoApi";
+  import userApi from "@/api/userApi";
+  import danmuApi from "@/api/danmuApi";
   import Player, {Danmu} from 'xgplayer';
   import 'xgplayer/dist/index.min.css';
   import 'xgplayer/es/plugins/danmu/index.css'
@@ -111,7 +167,7 @@
 
   export default {
     name: "VideoDetail4",
-    components: {CommonHeader, VideoComment},
+    components: {CommonHeader, VideoComment, LoginDialog},
     mixins:[userUtils],
     data(){
       return {
@@ -164,6 +220,7 @@
     },
     mounted(){
       this.getVideoDetail();
+      this.initWebsocket();
     },
     methods: {
       async getVideoDetail() {
@@ -185,6 +242,9 @@
             //获取视频的播放量
             // await this.getVideoViewCounts();
           }
+          if(this.isUserLoggedIn){
+            await this.getUserFollowings();
+          }
         } catch(error){
           console.log('getVideoDetail error=>', error);
         }
@@ -193,53 +253,137 @@
       },
 
       async initPlayer(){
-        const videoUrl = '/localApi/video-slices?url=' + this.videoDetail.url;
-        
-        this.player = new Player({
-          id: 'bili-player',
-          url: videoUrl,
-          width: '800px',
-          height: '450px',
-          plugins: [Danmu],
-          danmu: {
-            comments: []
-          },
-        });
-       
-        this.player.on(Events.ENDED, async () => {
-          let params = {
-            videoId: this.$route.query.videoId
+        try {
+          const videoUrl = '/localApi/video-slices?url=' + this.videoDetail.url;
+          
+          const danmuList = await this.getDanmus();
+          if(danmuList && danmuList.length > 0){
+            danmuList.forEach(item =>{
+              const content = JSON.parse(item.content);
+              content.id = item.id;
+              this.danmus.push(content);
+            });
           }
-          await videoApi.addVideoViews(params);
-          this.viewCount++;
-        })
+
+          this.player = new Player({
+            id: 'bili-player',
+            url: videoUrl,
+            width: '800px',
+            height: '450px',
+            plugins: [Danmu],
+            danmu: {
+              comments: this.danmus
+            },
+          });
+        
+          this.player.on(Events.ENDED, async () => {
+            try {
+              let params = {
+                videoId: this.$route.query.videoId
+              }
+              await videoApi.addVideoViews(params);
+              this.viewCount++;
+            } catch (error) {
+              console.log('initPlayer player.on error=>', error);
+            }
+           
+          })
+        } catch (error) {
+          console.log('initPlayer error=>', error);
+        }
+        
       },
 
+      initWebsocket() {
+        try {
+          const url = 'ws://localhost:15005/imserver/' + localStorage.getItem('token');
+          console.log('initWebsocket url=>',url);
+          this.ws = new WebSocket(url);
+          this.ws.onmessage = (event) => {
+            const msgObj = JSON.parse(event.data);
+            // console.log('接收到后端的消息：', msgObj);
+            // 如果消息类型是弹幕，则调用播放器发送弹幕
+            if (msgObj.txt) {
+              console.log('接收到弹幕：', msgObj);
+              this.player.danmu.sendComment(msgObj);
+            }
+            //在线人数通知消息处理
+            if (msgObj.onlineCount) {
+              this.onWatching = msgObj.onlineCount;
+            }
+          };
+        } catch (error) {
+          console.log('initWebsocket error=>', error);
+        }
+        
+      },
+
+      async getDanmus() {
+        try {
+          const videoId = this.$route.query.videoId;
+          const response = await danmuApi.getDanmus(videoId, null, null);
+          const { data: danmuList } = response;
+          this.danmuCount = danmuList.length === 0 ? 0 : danmuList.length;
+          danmuList.forEach(danmu => {
+            let data = {
+              danmuTime: '',
+              txt: '',
+              createTime: ''
+            };
+            data.createTime = danmu.createTime;
+            const { content: content } = danmu;
+            data.txt = JSON.parse(content).txt;
+            data.danmuTime = this.millisecondsToMinutesAndSeconds(danmu.danmuTime);
+            this.tableData.push(data);
+          });
+          return danmuList;
+        } catch (error) {
+          console.log('getDanmus error=>', getDanmus);
+        }
+        
+      },
+
+      millisecondsToMinutesAndSeconds(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const formattedMinutes = String(minutes).padStart(2, '0');
+        const formattedSeconds = String(seconds).padStart(2, '0');
+        return `${formattedMinutes}:${formattedSeconds}`;
+      },
+      
       sendDanmu(){
-        if(!this.isUserLoggedIn){
-          this.showLoginDialog = true;
-          return;
-        }
-        if(this.danmuText){
-          const danmuText = this.danmuText;
-          const danmuTime = Math.floor(this.player.currentTime * 1000);
-          let danmuMessage = {
-            start:danmuTime,
-            txt:danmuText,
-            duration:this.defaultDanmuConfig.duration,
-            style:this.defaultDanmuConfig.style,
+        try {
+          
+          if (!this.isUserLoggedIn) {
+            this.showLoginDialog = true;
+            return;
           }
-          //发送弹幕到后端进行保存
-          let params = {};
-          params.content = danmuMessage;
-          params.videoId = this.$route.query.videoId;
-          params.danmuTime = danmuTime;
-          this.ws.send(JSON.stringify(params));
-          //在前端播放器发送弹幕
-          this.danmuText = '';
-          danmuMessage.id = 1;
-          this.player.danmu.sendComment(danmuMessage);
+          if (this.danmuText) {
+            const danmuText = this.danmuText;
+            const danmuTime = Math.floor(this.player.currentTime * 1000);
+            let danmuMessage = {
+              start: danmuTime,
+              txt: danmuText,
+              duration: this.defaultDanmuConfig.duration,
+              style: this.defaultDanmuConfig.style,
+            }
+            //发送弹幕到后端进行保存
+            let params = {};
+            params.content = danmuMessage;
+            params.videoId = this.$route.query.videoId;
+            params.danmuTime = danmuTime;
+            this.ws.send(JSON.stringify(params));
+            //在前端播放器发送弹幕
+            this.danmuText = '';
+            danmuMessage.id = 1;
+
+            this.player.danmu.sendComment(danmuMessage);
+          }
+        } catch (error) {
+          console.log('sendDanmu error=>', error);
         }
+        
       },
 
       async addOrDeleteVideoLike(){
@@ -300,6 +444,28 @@
       async getVideoViewCounts(){
         let response = await videoApi.getVideoViewCounts(this.$route.query.videoId);
         this.viewCount = response.data !== null ? response.data : this.viewCount;
+      },
+
+      async addUserFollowings(followingId) {
+        if (!this.isUserLoggedIn) {
+          this.showLoginDialog = true;
+          return;
+        }
+        let params = {
+          followingId: followingId
+        }
+        await userApi.addUserFollowings(params);
+        this.followed = true;
+      },
+
+      async getUserFollowings() {
+        let response = await userApi.getUserFollowings();
+        let followingGroupList = response.data;
+        let followingUserList = [];
+        followingGroupList.forEach(
+          group => followingUserList.push(...(group.followingUserInfoList)));
+        this.followed
+          = followingUserList.some(item => item.userId === this.videoUpInfo.userId);
       },
 
     },
