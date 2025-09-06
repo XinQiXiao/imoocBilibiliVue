@@ -275,6 +275,8 @@
               comments: this.danmus
             },
           });
+
+          this.player.danmu.setFontSize('20', '24');
         
           this.player.on(Events.ENDED, async () => {
             try {

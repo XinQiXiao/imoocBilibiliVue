@@ -29,16 +29,29 @@ const routes = [
   {
     // 个人中心
     path: '/mySpace',
-    component: () => import('@/components/MainPage'),
     redirect: '/mySpace/home',
+    component: () => import('@/components/mySpace/MySpaceContent'),
+    
     children: [
       {
-        path: '/home',
-        component: () => import('@/components/MySpaceHome'),
+        path: 'home',
+        component: () => import('@/components/mySpace/MySpaceHome'),
       },
       {
-        path: '/post',
-        component: () => import('@/components/MySpacePost'),
+        path: 'post',
+        component: () => import('@/components/mySpace/MySpacePost'),
+      },
+      {
+        path: 'info',
+        component: () => import('@/components/mySpace/MySpaceInfo'),
+      },
+      {
+        path: 'collection',
+        component: () => import('@/components/mySpace/MySpaceCollection'),
+      },
+      {
+        path: 'following',
+        component: () => import('@/components/mySpace/MySpaceFollowing'),
       },
     ],
   },
