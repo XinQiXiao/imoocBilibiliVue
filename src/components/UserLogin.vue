@@ -10,22 +10,28 @@
         <div class="user-login-form-item-title">
           账号
         </div>
-        <input placeholder="请输入账号" type="text">
+        <input placeholder="请输入账号" type="text" v-model="account">
       </div>
 
       <div class="user-login-form-item">
         <div class="user-login-form-item-title">
           密码
         </div>
-        <input placeholder="请输入密码" type="text">
+        <input placeholder="请输入密码" type="text" v-model="password">
         <div class="forgetPwd">
           忘记密码
         </div>
       </div>
 
       <div class="user-login-form-footer">
-        <el-button type="primary" class="user-login-form-footer-btn">注册</el-button>
-        <el-button type="primary" class="user-login-form-footer-btn">登录</el-button>
+        <el-button 
+          type="primary" class="user-login-form-footer-btn"
+          @click="userRegisterFromDialog"
+        >注册</el-button>
+        <el-button 
+          type="primary" class="user-login-form-footer-btn"
+          @click="userLoginFromDialog"
+        >登录</el-button>
         
       </div>
 
@@ -34,10 +40,39 @@
 </template>
 
 <script>
+
+import { Message } from 'element-ui';
+import userUtils from "@/utils/userUtils";
+
 export default {
   name: 'UserLogin',
-  props: {
-   
+  mixins:[userUtils],
+  data(){
+    return{
+      account:'',
+      password:''
+    }
+  },
+  methods:{
+    async userRegisterFromDialog(){
+      try{
+        await this.userRegister(this.account, this.password);
+      
+        Message.success("注册成功，请点击登录按钮进行登录");
+      }catch (e){
+        Message.error("注册失败");
+      }
+    },
+
+    async userLoginFromDialog(){
+      try {
+        await this.userLogin(this.account, this.password);
+        this.$router.push('/');
+      }catch (e){
+        Message.error('登录失败');
+      }
+
+    }
   }
 }
 </script>

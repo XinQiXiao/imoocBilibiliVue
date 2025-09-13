@@ -55,6 +55,16 @@ const routes = [
       },
     ],
   },
+  {
+        // 用户动态
+        path:'/userMoments',
+        component:() => import('@/components/UserMoments'),
+    },
+    {
+        // 用户历史
+        path:'/userHistory',
+        component:() => import('@/components/UserHistory'),
+    },
 ]
 
 const router = new VueRouter({
