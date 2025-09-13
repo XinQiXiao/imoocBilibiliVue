@@ -18,12 +18,12 @@ const routes = [
   },
   {
     // 视频投稿
-    path:'/postContent',
+    path: '/postContent',
     component: () => import('@/components/PostContent'),
   },
   {
     // 视频详情
-    path:'/videoDetail',
+    path: '/videoDetail',
     component: () => import('@/components/VideoDetail'),
   },
   {
@@ -31,7 +31,7 @@ const routes = [
     path: '/mySpace',
     redirect: '/mySpace/home',
     component: () => import('@/components/mySpace/MySpaceContent'),
-    
+
     children: [
       {
         path: 'home',
@@ -56,15 +56,20 @@ const routes = [
     ],
   },
   {
-        // 用户动态
-        path:'/userMoments',
-        component:() => import('@/components/UserMoments'),
-    },
-    {
-        // 用户历史
-        path:'/userHistory',
-        component:() => import('@/components/UserHistory'),
-    },
+    // 用户动态
+    path: '/userMoments',
+    component: () => import('@/components/UserMoments'),
+  },
+  {
+    // 用户历史
+    path: '/userHistory',
+    component: () => import('@/components/UserHistory'),
+  },
+  {
+    //搜索
+    path: '/searchContents',
+    component: () => import('@/components/search/SearchContents')
+  },
 ]
 
 const router = new VueRouter({

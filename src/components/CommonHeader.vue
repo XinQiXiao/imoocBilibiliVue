@@ -262,7 +262,24 @@
           location.reload();
         }
       },
-      searchContents(){},
+      searchContents(){
+        if (this.searchTxt === '') {
+          window.alert('请输入搜索内容');
+          return;
+        }
+        //判断是否重复跳转
+        if (decodeURIComponent(this.$route.fullPath)
+          === '/searchContents?searchTxt=' + this.searchTxt) {
+          location.reload();
+          return;
+        }
+        this.$router.push({
+          path: '/searchContents',
+          query: {
+            searchTxt: this.searchTxt
+          }
+        })
+      },
     },
   }
 </script>

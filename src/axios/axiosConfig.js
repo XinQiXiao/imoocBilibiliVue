@@ -20,7 +20,8 @@ httpRequest.interceptors.response.use(function(response){
   // console.log('axiosConfig response.interceptors data=>', data)
   if(data){
     if(data.code === '500'){
-      throw new Error(data.msg);
+      // throw new Error(data.msg);
+      console.log('axiso response error msg=>', data.msg);
     }
   }
   return data;
